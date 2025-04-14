@@ -1,5 +1,6 @@
 package com.recrutement.app.model;
 
+import com.recrutement.app.model.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,7 +33,12 @@ public class Employe {
     private LocalDate dateInscription = LocalDate.now();
     
     private String telephone;
-    
+
+    // Role (single role per employee)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
+
     // Relations
     @ManyToOne
     @JoinColumn(name = "entreprise_id", nullable = false)
