@@ -99,6 +99,13 @@ public class Candidat {
     @OneToMany(mappedBy = "candidat")
     private Set<CommentaireCandidat> commentaires = new HashSet<>();
     
-    @OneToMany(mappedBy = "candidat")
+    // Changed from mappedBy to JoinColumn to match your existing schema
+    @OneToMany
+    @JoinColumn(name = "candidatId")
     private Set<MessageEntreprise> messagesRecus = new HashSet<>();
+    
+    // Added this new relationship for messages sent by candidat
+    @OneToMany
+    @JoinColumn(name = "candidatId")
+    private Set<MessageCandidat> messagesEnvoyes = new HashSet<>();
 }
