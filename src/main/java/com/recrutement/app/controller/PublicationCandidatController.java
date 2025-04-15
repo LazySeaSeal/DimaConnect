@@ -28,7 +28,8 @@ public ResponseEntity<?> createPublication(
         @RequestParam("contenu") String contenu,
         @RequestParam("typeMedia") String typeMedia,
         @RequestParam("file") MultipartFile file,
-        @RequestParam("candidatId") Long candidatId // 👈 Ajout ici
+        @RequestParam("candidatId") Long candidatId
+ // 👈 Ajout ici
 ) {
     try {
         String mediaUrl = file.getOriginalFilename(); // ou gérer l'upload
