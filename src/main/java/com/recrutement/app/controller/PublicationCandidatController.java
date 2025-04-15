@@ -23,16 +23,22 @@ public class PublicationCandidatController {
     private PublicationCandidatService publicationService;
 
     // Créer une nouvelle publication avec un fichier
- @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 public ResponseEntity<?> createPublication(
         @RequestParam("contenu") String contenu,
         @RequestParam("typeMedia") String typeMedia,
-        @RequestParam("file") MultipartFile file,
+        @RequestParam(value = "file", required = false) MultipartFile file,  // rendre file optionnel
         @RequestParam("candidatId") Long candidatId
- // 👈 Ajout ici
 ) {
     try {
-        String mediaUrl = file.getOriginalFilename(); // ou gérer l'upload
+        String mediaUrl = null;
+
+        // Si le type est "LIEN", on ne s'attend pas à avoir un fichier
+        if (file != null && !file.isEmpty()) {
+            mediaUrl = file.getOriginalFilename(); // ou gérer l'upload réel
+        } else if ("LIEN".equalsIgnoreCase(typeMedia)) {
+            mediaUrl = contenu; // Le lien sera le contenu de la publication
+        }
 
         TypeMedia mediaType;
         try {
@@ -44,11 +50,12 @@ public ResponseEntity<?> createPublication(
             ));
         }
 
+        // Créer un objet PublicationRequest avec les bonnes valeurs
         PublicationRequest request = new PublicationRequest();
         request.setContenu(contenu);
         request.setTypeMedia(mediaType);
         request.setMediaUrl(mediaUrl);
-        request.setOwnerId(candidatId); // 👈 Important : assigner l'ID ici
+        request.setOwnerId(candidatId); // Assigner l'ID du candidat
 
         PublicationCandidat publication = publicationService.createPublication(request);
 
