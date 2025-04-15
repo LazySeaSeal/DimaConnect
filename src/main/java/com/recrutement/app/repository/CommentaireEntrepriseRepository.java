@@ -1,20 +1,16 @@
 package com.recrutement.app.repository;
 
 import com.recrutement.app.model.CommentaireEntreprise;
+import com.recrutement.app.model.Entreprise;
+import com.recrutement.app.model.PublicationCandidat;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Repository
 public interface CommentaireEntrepriseRepository extends JpaRepository<CommentaireEntreprise, Long> {
-    
-    List<CommentaireEntreprise> findByEntrepriseId(Long entrepriseId);
-    
-    List<CommentaireEntreprise> findByPublicationCandidatId(Long publicationCandidatId);
-    
-    List<CommentaireEntreprise> findByDateCreationAfter(LocalDate date);
-    
-    List<CommentaireEntreprise> findByEstLuFalse();
+    List<CommentaireEntreprise> findByPublicationCandidat(PublicationCandidat publicationCandidat);
+    List<CommentaireEntreprise> findByEntreprise(Entreprise entreprise);
+    List<CommentaireEntreprise> findByPublicationCandidatIdAndEstLu(Long publicationCandidatId, Boolean estLu);
 }
