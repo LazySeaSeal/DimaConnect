@@ -8,6 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
+import jakarta.persistence.EntityNotFoundException;
+import java.time.LocalDate;
+import com.recrutement.app.dto.MatchingRequest;
 
 import java.util.List;
 
@@ -92,4 +95,26 @@ public class NotificationCandidatController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+ 
+
+  // API GET existante (à conserver)
+@GetMapping("/candidat/{candidatId}")
+public ResponseEntity<List<NotificationCandidat>> getNotificationsByCandidat(
+        @PathVariable Long candidatId) {
+    List<NotificationCandidat> notifications = notificationCandidatService.getByCandidatId(candidatId);
+    return ResponseEntity.ok(notifications);
+}
+
+// Nouvelle API POST pour générer les notifications
+@PostMapping("/generer-offres-matching")
+public ResponseEntity<List<NotificationCandidat>> genererNotificationsMatching(
+        @RequestBody MatchingRequest request) {
+    
+    List<NotificationCandidat> nouvellesNotifications = 
+        notificationCandidatService.genererNotificationsOffreMatching(
+            request.getCandidatId(),
+            request.getSeuilMatching());
+    
+    return ResponseEntity.ok(nouvellesNotifications);
+}
 }
