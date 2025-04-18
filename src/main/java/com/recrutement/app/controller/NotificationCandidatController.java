@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -74,6 +75,21 @@ public class NotificationCandidatController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Erreur serveur: " + e.getMessage());
+        }
+    }
+
+     @PutMapping("/accept-contact/{contactId}")
+    @Transactional
+    public ResponseEntity<NotificationCandidat> acceptContactAndCreateNotification(@PathVariable Long contactId) {
+        try {
+            NotificationCandidat notification = notificationCandidatService.acceptContactAndCreateNotification(contactId);
+            return ResponseEntity.ok(notification);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 }
