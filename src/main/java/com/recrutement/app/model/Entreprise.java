@@ -84,9 +84,6 @@ public class Entreprise {
     private Set<NotificationEntreprise> notifications = new HashSet<>();
     
     @OneToMany(mappedBy = "entreprise")
-    private Set<ContactCandidat> contacts = new HashSet<>();
-    
-    @OneToMany(mappedBy = "entreprise")
     private Set<Abonnement> abonnements = new HashSet<>();
     
     @OneToMany(mappedBy = "entreprise")

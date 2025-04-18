@@ -19,12 +19,17 @@ public class ContactCandidat {
     private Long id;
     
     @ManyToOne
-    @JoinColumn(name = "candidat_id", nullable = false)
-    private Candidat candidat;
+    @JoinColumn(name = "sender_candidat_id", nullable = false)
+    private Candidat sender;
     
     @ManyToOne
-    @JoinColumn(name = "entreprise_id", nullable = false)
-    private Entreprise entreprise;
+    @JoinColumn(name = "receiver_candidat_id", nullable = false)
+    private Candidat receiver;
+    
+    // Add this to satisfy the existing mapping in Candidat
+    @ManyToOne
+    @JoinColumn(name = "candidat_id")
+    private Candidat candidat;
     
     @Column(name = "date_connexion")
     private LocalDate dateConnexion = LocalDate.now();

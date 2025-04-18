@@ -5,5 +5,6 @@ public enum TypeNotification {
     CANDIDATURE,
     OFFRE,
     ABONNEMENT,
-    AUTRE
+    AUTRE,
+    ACCEPTATION
 }
