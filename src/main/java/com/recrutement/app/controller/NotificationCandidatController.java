@@ -15,6 +15,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.Map;
+
 
 import java.util.List;
 
@@ -109,16 +111,16 @@ public ResponseEntity<List<NotificationCandidat>> getNotificationsByCandidat(
     return ResponseEntity.ok(notifications);
 }
 
-// Nouvelle API POST pour générer les notifications
 @PostMapping("/generer-offres-matching")
 public ResponseEntity<List<NotificationCandidat>> genererNotificationsMatching(
-        @RequestBody MatchingRequest request) {
-    
-    List<NotificationCandidat> nouvellesNotifications = 
-        notificationCandidatService.genererNotificationsOffreMatching(
-            request.getCandidatId(),
-            request.getSeuilMatching());
-    
-    return ResponseEntity.ok(nouvellesNotifications);
+        @RequestParam Long offreId) {
+
+    List<NotificationCandidat> notifications =
+        notificationCandidatService.genererNotificationsMatchingPourOffre(offreId, 100);
+
+    return ResponseEntity.ok(notifications);
 }
+
+    
+
 }
