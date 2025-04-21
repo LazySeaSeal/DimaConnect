@@ -3,6 +3,7 @@ package com.recrutement.app.dto;
 
 import com.recrutement.app.model.enums.TypeMedia;
 import lombok.Data;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @Data
 public class PublicationRequest {

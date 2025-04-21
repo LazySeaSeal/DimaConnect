@@ -1,21 +1,17 @@
 package com.recrutement.app.config;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spring.web.plugins.Docket;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Info;
 
 @Configuration
+@OpenAPIDefinition(
+    info = @Info(
+        title = "API DimaConnect",
+        version = "1.0",
+        description = "API pour la gestion de recrutement"
+    )
+)
 public class SwaggerConfig {
-
-    @Bean
-    public Docket api() {
-        return new Docket(DocumentationType.OAS_30) // OpenAPI 3.0
-                .select()
-                .apis(RequestHandlerSelectors.basePackage("com.recrutement.app"))
-                .paths(PathSelectors.any())
-                .build();
-    }
+    // Aucun code supplémentaire nécessaire
 }

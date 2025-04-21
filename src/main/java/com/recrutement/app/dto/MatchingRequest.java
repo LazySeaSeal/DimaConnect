@@ -1,4 +1,5 @@
 package com.recrutement.app.dto;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 public class MatchingRequest {
     private Long candidatId;

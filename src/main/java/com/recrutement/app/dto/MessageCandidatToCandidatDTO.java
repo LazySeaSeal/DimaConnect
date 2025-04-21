@@ -1,6 +1,7 @@
 package com.recrutement.app.dto;
 
 import java.time.LocalDate;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 public class MessageCandidatToCandidatDTO {
     private Long id;
