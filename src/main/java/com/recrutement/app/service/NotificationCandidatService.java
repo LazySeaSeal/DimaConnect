@@ -188,5 +188,6 @@ public List<NotificationCandidat> genererNotificationsMatchingPourOffre(Long off
     return notificationsCreees;
 }
 
+ 
 
 }

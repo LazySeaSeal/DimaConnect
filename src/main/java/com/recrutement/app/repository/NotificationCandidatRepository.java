@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
+import com.recrutement.app.model.ContactCandidat;
+import com.recrutement.app.model.enums.StatutContact;
 
 import java.util.List;public interface NotificationCandidatRepository extends JpaRepository<NotificationCandidat, Long> {
     // Méthodes existantes (à conserver)
@@ -14,7 +16,8 @@ import java.util.List;public interface NotificationCandidatRepository extends Jp
     List<NotificationCandidat> findByTypeAndEstLue(TypeNotification type, Boolean estLue);
     List<NotificationCandidat> findByCandidatIdAndEstLue(Long candidatId, Boolean estLue);
     List<NotificationCandidat> findByCandidatId(Long candidatId);
-    
+     
+
     @Modifying
     @Transactional
     @Query("UPDATE NotificationCandidat n SET n.estLue = true WHERE n.candidat.id = :candidatId")
@@ -36,4 +39,6 @@ import java.util.List;public interface NotificationCandidatRepository extends Jp
     List<NotificationCandidat> findOffresNotificationsByCandidat(@Param("candidatId") Long candidatId);
     
     long countByCandidatIdAndEstLueFalse(Long candidatId);
+
+    
 }

@@ -16,7 +16,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Map;
-
+import com.recrutement.app.model.ContactCandidat;
+ 
 
 import java.util.List;
 
@@ -110,17 +111,17 @@ public ResponseEntity<List<NotificationCandidat>> getNotificationsByCandidat(
     List<NotificationCandidat> notifications = notificationCandidatService.getByCandidatId(candidatId);
     return ResponseEntity.ok(notifications);
 }
-
 @PostMapping("/generer-offres-matching")
 public ResponseEntity<List<NotificationCandidat>> genererNotificationsMatching(
-        @RequestParam Long offreId) {
+        @RequestParam Long offreId,
+        @RequestParam(defaultValue = "100") int seuilMatching) {
 
     List<NotificationCandidat> notifications =
-        notificationCandidatService.genererNotificationsMatchingPourOffre(offreId, 100);
+        notificationCandidatService.genererNotificationsMatchingPourOffre(offreId, seuilMatching);
 
     return ResponseEntity.ok(notifications);
 }
-
+ 
     
 
 }
