@@ -5,15 +5,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CompetenceCandidatRepository extends JpaRepository<CompetenceCandidat, Long> {
-    
     List<CompetenceCandidat> findByCandidatId(Long candidatId);
-    
-    List<CompetenceCandidat> findByCompetenceId(Long competenceId);
-    
-    List<CompetenceCandidat> findByNiveauGreaterThanEqual(Integer niveau);
-    
-    CompetenceCandidat findByCandidatIdAndCompetenceId(Long candidatId, Long competenceId);
+    boolean existsByCandidatIdAndCompetenceId(Long candidatId, Long competenceId);
+    Optional<CompetenceCandidat> findByCandidatIdAndCompetenceId(Long candidatId, Long competenceId);
 }

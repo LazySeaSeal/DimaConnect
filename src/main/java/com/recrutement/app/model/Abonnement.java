@@ -12,19 +12,19 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Abonnement {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @ManyToOne
     @JoinColumn(name = "candidat_id", nullable = false)
     private Candidat candidat;
-    
+
     @ManyToOne
     @JoinColumn(name = "entreprise_id", nullable = false)
     private Entreprise entreprise;
-    
+
     @Column(name = "date_abonnement")
     private LocalDate dateAbonnement = LocalDate.now();
 }

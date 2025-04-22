@@ -43,4 +43,8 @@ public class Employe {
     
     @OneToMany(mappedBy = "createur")
     private Set<Test> testsCrees = new HashSet<>();
+    @ManyToOne
+    @JoinColumn(name = "candidat_id")
+    private Candidat candidat;
+
 }

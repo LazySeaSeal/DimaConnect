@@ -99,6 +99,3 @@ Pour étendre cette application, vous pouvez :
 3. Ajouter des services métier pour encapsuler la logique applicative
 4. Mettre en place des tests unitaires et d'intégration
 
-## Licence
-
-Ce projet est distribué sous licence MIT.
