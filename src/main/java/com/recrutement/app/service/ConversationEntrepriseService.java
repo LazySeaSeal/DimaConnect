@@ -26,13 +26,21 @@ public class ConversationEntrepriseService {
 
     @Transactional
     public ConversationEntreprise trouverOuCreerConversation(Long entreprise1Id, Long entreprise2Id) {
-        ConversationEntreprise conversation = conversationEntrepriseRepository.findByEntreprise1IdAndEntreprise2Id(entreprise1Id, entreprise2Id);
+        // Vérifier si une conversation existe déjà (dans les deux sens)
+        ConversationEntreprise conversation = conversationEntrepriseRepository.findByEntreprises(entreprise1Id, entreprise2Id);
         
         if (conversation == null) {
-            conversation = new ConversationEntreprise(entreprise1Id, entreprise2Id);
+            // Créer une nouvelle conversation avec les IDs dans l'ordre croissant
+            Long idMin = Math.min(entreprise1Id, entreprise2Id);
+            Long idMax = Math.max(entreprise1Id, entreprise2Id);
+            
+            conversation = new ConversationEntreprise();
+            conversation.setEntreprise1Id(idMin);
+            conversation.setEntreprise2Id(idMax);
             conversation.setDateCreation(LocalDateTime.now());
             conversation.setDerniereMiseAJour(LocalDateTime.now());
             conversation.setStatut("ACTIVE");
+            
             conversation = conversationEntrepriseRepository.save(conversation);
         }
         
@@ -50,8 +58,10 @@ public class ConversationEntrepriseService {
         message.setDateEnvoi(LocalDate.now());
         message.setEstLu(false);
         message.setConversation(conversation);
+        
         message = messageEntrepriseToEntrepriseRepository.save(message);
         
+        // Mettre à jour la date de dernière mise à jour de la conversation
         conversation.setDerniereMiseAJour(LocalDateTime.now());
         conversationEntrepriseRepository.save(conversation);
         
@@ -59,7 +69,7 @@ public class ConversationEntrepriseService {
     }
 
     public Page<ConversationEntreprise> getConversationsEntreprise(Long entrepriseId, Pageable pageable) {
-        return conversationEntrepriseRepository.findByEntreprise1IdOrEntreprise2Id(entrepriseId, entrepriseId, pageable);
+        return conversationEntrepriseRepository.findByEntrepriseId(entrepriseId, pageable);
     }
 
     public Optional<ConversationEntreprise> getConversationAvecMessages(Long conversationId) {

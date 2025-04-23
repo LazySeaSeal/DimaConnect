@@ -2,40 +2,28 @@ package com.recrutement.app.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
+@Table(name = "conversation_entreprise")
 public class ConversationEntreprise {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(nullable = false)
     private Long entreprise1Id;
-    
-    @Column(nullable = false)
     private Long entreprise2Id;
     
-    @Column(nullable = false)
     private LocalDateTime dateCreation;
-    
     private LocalDateTime derniereMiseAJour;
-    private String statut = "ACTIVE"; // par défaut: "ACTIVE", peut être "ARCHIVEE"
-    
-    // Relation avec les messages
-    @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL)
-    private List<MessageEntrepriseToEntreprise> messages = new ArrayList<>();
+    private String statut; // ACTIVE, ARCHIVEE
     
     // Constructeurs
-    public ConversationEntreprise() {
-    }
+    public ConversationEntreprise() {}
     
     public ConversationEntreprise(Long entreprise1Id, Long entreprise2Id) {
         this.entreprise1Id = entreprise1Id;
         this.entreprise2Id = entreprise2Id;
-        this.dateCreation = LocalDateTime.now();
-        this.derniereMiseAJour = LocalDateTime.now();
     }
     
     // Getters et setters
@@ -85,20 +73,5 @@ public class ConversationEntreprise {
     
     public void setStatut(String statut) {
         this.statut = statut;
-    }
-    
-    public List<MessageEntrepriseToEntreprise> getMessages() {
-        return messages;
-    }
-    
-    public void setMessages(List<MessageEntrepriseToEntreprise> messages) {
-        this.messages = messages;
-    }
-    
-    // Méthodes utiles
-    public void addMessage(MessageEntrepriseToEntreprise message) {
-        messages.add(message);
-        message.setConversation(this);
-        this.derniereMiseAJour = LocalDateTime.now();
     }
 }

@@ -1,4 +1,5 @@
 package com.recrutement.app.controller;
+
 import com.recrutement.app.dto.MessageEntrepriseToEntrepriseDTO;
 import com.recrutement.app.model.ConversationEntreprise;
 import com.recrutement.app.model.MessageEntrepriseToEntreprise;
@@ -20,7 +21,9 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/conversations/entreprise-to-entreprise")
+@Tag(name = "Conversations entre entreprises", description = "Gestion des conversations entre entreprises")
 public class ConversationEntrepriseController {
+    
     @Autowired
     private ConversationEntrepriseService conversationEntrepriseService;
     
@@ -28,6 +31,7 @@ public class ConversationEntrepriseController {
     private SimpMessagingTemplate messagingTemplate;
     
     @PostMapping("/message")
+    @Operation(summary = "Envoyer un message entre entreprises")
     public ResponseEntity<MessageEntrepriseToEntrepriseDTO> envoyerMessage(
             @RequestBody MessageEntrepriseToEntrepriseDTO messageDTO) {
         MessageEntrepriseToEntreprise message = conversationEntrepriseService.envoyerMessage(
@@ -71,12 +75,14 @@ public class ConversationEntrepriseController {
     }
     
     @GetMapping("/{entrepriseId}")
+    @Operation(summary = "Obtenir les conversations d'une entreprise")
     public ResponseEntity<Page<ConversationEntreprise>> getConversations(
             @PathVariable Long entrepriseId, Pageable pageable) {
         return ResponseEntity.ok(conversationEntrepriseService.getConversationsEntreprise(entrepriseId, pageable));
     }
     
     @GetMapping("/details/{conversationId}")
+    @Operation(summary = "Obtenir les détails d'une conversation")
     public ResponseEntity<ConversationEntreprise> getConversation(
             @PathVariable Long conversationId) {
         Optional<ConversationEntreprise> conversation = conversationEntrepriseService.getConversationAvecMessages(conversationId);
@@ -85,6 +91,7 @@ public class ConversationEntrepriseController {
     }
     
     @PutMapping("/lire/{conversationId}/{destinataireId}")
+    @Operation(summary = "Marquer les messages comme lus")
     public ResponseEntity<Void> marquerMessagesLus(
             @PathVariable Long conversationId, @PathVariable Long destinataireId) {
         conversationEntrepriseService.marquerMessagesLus(conversationId, destinataireId);
@@ -98,6 +105,7 @@ public class ConversationEntrepriseController {
     }
     
     @PutMapping("/archiver/{conversationId}")
+    @Operation(summary = "Archiver une conversation")
     public ResponseEntity<Void> archiverConversation(
             @PathVariable Long conversationId) {
         conversationEntrepriseService.archiverConversation(conversationId);
