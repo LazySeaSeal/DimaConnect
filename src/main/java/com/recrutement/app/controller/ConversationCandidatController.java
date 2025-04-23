@@ -21,15 +21,17 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/conversations/candidat-to-candidat")
+@Tag(name = "Conversations entre candidats", description = "Gestion des conversations entre candidats")
 public class ConversationCandidatController {
-
+    
     @Autowired
     private ConversationCandidatService conversationCandidatService;
     
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
-
+    
     @PostMapping("/message")
+    @Operation(summary = "Envoyer un message entre candidats")
     public ResponseEntity<MessageCandidatToCandidatDTO> envoyerMessage(
             @RequestBody MessageCandidatToCandidatDTO messageDTO) {
         MessageCandidatToCandidat message = conversationCandidatService.envoyerMessage(
@@ -48,14 +50,14 @@ public class ConversationCandidatController {
         
         // Envoyer notification WebSocket
         messagingTemplate.convertAndSend(
-                "/topic/conversations/" + message.getDestinataireId(), 
+                "/topic/conversations/candidat/" + message.getDestinataireId(), 
                 responseDTO);
         
         return ResponseEntity.ok(responseDTO);
     }
     
-    @MessageMapping("/envoyer-message")
-    @SendTo("/topic/conversations")
+    @MessageMapping("/envoyer-message-candidat")
+    @SendTo("/topic/conversations/candidat")
     public MessageCandidatToCandidatDTO envoyerMessageWebSocket(MessageCandidatToCandidatDTO messageDTO) {
         MessageCandidatToCandidat message = conversationCandidatService.envoyerMessage(
                 messageDTO.getExpediteurId(),
@@ -71,42 +73,46 @@ public class ConversationCandidatController {
                 message.getDestinataireId(),
                 message.getConversation().getId());
     }
-
+    
     @GetMapping("/{candidatId}")
+    @Operation(summary = "Obtenir les conversations d'un candidat")
     public ResponseEntity<Page<ConversationCandidat>> getConversations(
             @PathVariable Long candidatId, Pageable pageable) {
         return ResponseEntity.ok(conversationCandidatService.getConversationsCandidat(candidatId, pageable));
     }
-
+    
     @GetMapping("/details/{conversationId}")
+    @Operation(summary = "Obtenir les détails d'une conversation")
     public ResponseEntity<ConversationCandidat> getConversation(
             @PathVariable Long conversationId) {
         Optional<ConversationCandidat> conversation = conversationCandidatService.getConversationAvecMessages(conversationId);
         return conversation.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
-
+    
     @PutMapping("/lire/{conversationId}/{destinataireId}")
+    @Operation(summary = "Marquer les messages comme lus")
     public ResponseEntity<Void> marquerMessagesLus(
             @PathVariable Long conversationId, @PathVariable Long destinataireId) {
         conversationCandidatService.marquerMessagesLus(conversationId, destinataireId);
         
         // Envoyer notification WebSocket pour la mise à jour du statut de lecture
         messagingTemplate.convertAndSend(
-                "/topic/conversations/status/" + conversationId,
+                "/topic/conversations/candidat/status/" + conversationId,
                 Map.of("conversationId", conversationId, "status", "read", "destinataireId", destinataireId));
         
         return ResponseEntity.ok().build();
     }
-
+    
     @PutMapping("/archiver/{conversationId}")
+    @Operation(summary = "Archiver une conversation")
     public ResponseEntity<Void> archiverConversation(
             @PathVariable Long conversationId) {
         conversationCandidatService.archiverConversation(conversationId);
         
         // Envoyer notification WebSocket pour la mise à jour du statut d'archivage
         messagingTemplate.convertAndSend(
-                "/topic/conversations/status/" + conversationId,
+                "/topic/conversations/candidat/status/" + conversationId,
                 Map.of("conversationId", conversationId, "status", "archived"));
         
         return ResponseEntity.ok().build();

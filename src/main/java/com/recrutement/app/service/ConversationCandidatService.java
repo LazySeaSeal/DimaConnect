@@ -26,13 +26,21 @@ public class ConversationCandidatService {
 
     @Transactional
     public ConversationCandidat trouverOuCreerConversation(Long candidat1Id, Long candidat2Id) {
-        ConversationCandidat conversation = conversationCandidatRepository.findByCandidat1IdAndCandidat2Id(candidat1Id, candidat2Id);
+        // Vérifier si une conversation existe déjà (dans les deux sens)
+        ConversationCandidat conversation = conversationCandidatRepository.findByCandidats(candidat1Id, candidat2Id);
         
         if (conversation == null) {
-            conversation = new ConversationCandidat(candidat1Id, candidat2Id);
+            // Créer une nouvelle conversation avec les IDs dans l'ordre croissant
+            Long idMin = Math.min(candidat1Id, candidat2Id);
+            Long idMax = Math.max(candidat1Id, candidat2Id);
+            
+            conversation = new ConversationCandidat();
+            conversation.setCandidat1Id(idMin);
+            conversation.setCandidat2Id(idMax);
             conversation.setDateCreation(LocalDateTime.now());
             conversation.setDerniereMiseAJour(LocalDateTime.now());
             conversation.setStatut("ACTIVE");
+            
             conversation = conversationCandidatRepository.save(conversation);
         }
         
@@ -50,8 +58,10 @@ public class ConversationCandidatService {
         message.setDateEnvoi(LocalDate.now());
         message.setEstLu(false);
         message.setConversation(conversation);
+        
         message = messageCandidatToCandidatRepository.save(message);
         
+        // Mettre à jour la date de dernière mise à jour de la conversation
         conversation.setDerniereMiseAJour(LocalDateTime.now());
         conversationCandidatRepository.save(conversation);
         
@@ -59,7 +69,7 @@ public class ConversationCandidatService {
     }
 
     public Page<ConversationCandidat> getConversationsCandidat(Long candidatId, Pageable pageable) {
-        return conversationCandidatRepository.findByCandidat1IdOrCandidat2Id(candidatId, candidatId, pageable);
+        return conversationCandidatRepository.findByCandidatId(candidatId, pageable);
     }
 
     public Optional<ConversationCandidat> getConversationAvecMessages(Long conversationId) {
