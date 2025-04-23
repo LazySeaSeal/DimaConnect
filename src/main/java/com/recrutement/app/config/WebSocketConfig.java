@@ -10,18 +10,25 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // Endpoint pour SockJS
         registry.addEndpoint("/ws-notifications")
-                .setAllowedOriginPatterns("*")  // accepte toutes les origines
+                .setAllowedOriginPatterns("*")
+                .withSockJS();
+        
+        registry.addEndpoint("/ws-messagerie")
+                .setAllowedOriginPatterns("*")
                 .withSockJS();
     }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        // Pour recevoir des messages côté client
-        registry.enableSimpleBroker("/topic");
-
-        // Pour envoyer des messages côté serveur
-        registry.setApplicationDestinationPrefixes("/app");
+        registry.enableSimpleBroker(
+            "/topic/notifications",
+            "/topic/conversations"
+        );
+        
+        registry.setApplicationDestinationPrefixes(
+            "/app",
+            "/msg"
+        );
     }
 }
