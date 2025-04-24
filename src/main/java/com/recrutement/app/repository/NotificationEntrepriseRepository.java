@@ -13,6 +13,9 @@ public interface NotificationEntrepriseRepository extends JpaRepository<Notifica
     
     List<NotificationEntreprise> findByEntrepriseId(Long entrepriseId);
     
+    // Ajoutez cette méthode pour résoudre l'erreur
+    List<NotificationEntreprise> findByEntrepriseIdAndEstLueFalse(Long entrepriseId);
+    
     List<NotificationEntreprise> findByType(TypeNotification type);
     
     List<NotificationEntreprise> findByDateCreationAfter(LocalDate date);

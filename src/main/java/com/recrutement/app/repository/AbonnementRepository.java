@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface AbonnementRepository extends JpaRepository<Abonnement, Long> {
@@ -16,5 +17,8 @@ public interface AbonnementRepository extends JpaRepository<Abonnement, Long> {
     
     List<Abonnement> findByDateAbonnementAfter(LocalDate date);
     
-    Abonnement findByCandidatIdAndEntrepriseId(Long candidatId, Long entrepriseId);
+    Optional<Abonnement> findByCandidatIdAndEntrepriseId(Long candidatId, Long entrepriseId);
+    
+    // Ajoutez cette méthode pour vérifier l'existence d'un abonnement
+    boolean existsByCandidatIdAndEntrepriseId(Long candidatId, Long entrepriseId);
 }
