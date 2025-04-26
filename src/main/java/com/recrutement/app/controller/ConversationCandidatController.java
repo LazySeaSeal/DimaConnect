@@ -9,7 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -57,14 +57,14 @@ public class ConversationCandidatController {
     }
     
     @MessageMapping("/envoyer-message-candidat")
-    @SendTo("/topic/conversations/candidat")
-    public MessageCandidatToCandidatDTO envoyerMessageWebSocket(MessageCandidatToCandidatDTO messageDTO) {
+    public void envoyerMessageWebSocket(@Payload MessageCandidatToCandidatDTO messageDTO) {
+        // Enregistrer le message dans la base de données
         MessageCandidatToCandidat message = conversationCandidatService.envoyerMessage(
                 messageDTO.getExpediteurId(),
                 messageDTO.getDestinataireId(),
                 messageDTO.getContenu());
         
-        return new MessageCandidatToCandidatDTO(
+        MessageCandidatToCandidatDTO responseDTO = new MessageCandidatToCandidatDTO(
                 message.getId(),
                 message.getContenu(),
                 message.getDateEnvoi(),
@@ -72,6 +72,21 @@ public class ConversationCandidatController {
                 message.getExpediteurId(),
                 message.getDestinataireId(),
                 message.getConversation().getId());
+        
+        // 1. Envoyer à la destination spécifique avec l'ID du destinataire
+        messagingTemplate.convertAndSend(
+                "/topic/conversations/candidat/" + message.getDestinataireId(), 
+                responseDTO);
+        
+        // 2. Envoyer également au format user/queue pour assurer la compatibilité
+        messagingTemplate.convertAndSendToUser(
+                String.valueOf(message.getDestinataireId()),
+                "/queue/messages",
+                responseDTO);
+        
+        // Log pour débogage
+        System.out.println("Message WebSocket envoyé de candidat " + message.getExpediteurId() + 
+                          " à candidat " + message.getDestinataireId());
     }
     
     @GetMapping("/{candidatId}")
