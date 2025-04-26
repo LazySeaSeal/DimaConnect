@@ -100,4 +100,9 @@ public class Entreprise {
     
     @OneToMany(mappedBy = "entreprise")
     private Set<MessageEntreprise> messages = new HashSet<>();
+
+    @OneToMany(mappedBy = "entreprise")
+    private Set<Evenement> evenements = new HashSet<>();
+
+
 }

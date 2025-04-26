@@ -18,4 +18,10 @@ public interface NotificationCandidatRepository extends JpaRepository<Notificati
     List<NotificationCandidat> findByDateCreationAfter(LocalDate date);
     
     List<NotificationCandidat> findByEstLueFalse();
+
+    List<NotificationCandidat> findByCandidatIdOrderByDateCreationDesc(Long candidatId);
+
+    List<NotificationCandidat> findByCandidatIdAndEstLueFalseOrderByDateCreationDesc(Long candidatId);
+
+    long countByCandidatIdAndEstLueFalse(Long candidatId);
 }
