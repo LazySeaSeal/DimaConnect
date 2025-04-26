@@ -1,5 +1,6 @@
 package com.recrutement.app.service;
 
+import com.recrutement.app.dto.OffreEmploiDTO;
 import com.recrutement.app.model.*;
 import com.recrutement.app.model.enums.RoleEmploye;
 import com.recrutement.app.model.enums.StatutOffre;
@@ -314,62 +315,14 @@ public class OffreEmploiService {
     }
 
 
-    /**
-     * Rechercher des offres avec filtres
-     */
-    /**
-     * Recherche avancée d'offres d'emploi avec tous les critères possibles
-     */
-    public Page<OffreEmploi> rechercheAvancee(
-            String titre,
-            LocalDate datePublication,
-            Integer niveauExpertise,
-            String typeContrat,
-            Double salaireMini,
-            Double salaireMaxi,
-            String localisation,
-            List<Long> competenceIds,
-            String tri,
-            int page,
-            int taille) {
 
-        // Convertir la chaîne de type de contrat en enum
-        TypeContrat typeContratEnum = null;
-        if (typeContrat != null && !typeContrat.isEmpty()) {
-            try {
-                typeContratEnum = TypeContrat.valueOf(typeContrat.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                // Ignorer si le type de contrat est invalide
-            }
-        }
 
-        // Créer le tri
-        Sort sort;
-        switch (tri) {
-            case "date":
-                sort = Sort.by(Sort.Direction.DESC, "dateValidation");
-                break;
-            case "salaire":
-                sort = Sort.by(Sort.Direction.DESC, "salaire");
-                break;
-            case "pertinence":
-            default:
-                // Tri par défaut (pertinence)
-                sort = Sort.by(Sort.Direction.DESC, "dateValidation");
-                break;
-        }
 
-        Pageable pageable = PageRequest.of(page, taille, sort);
-
-        return offreEmploiRepository.rechercheAvancee(
-                titre, datePublication, niveauExpertise, typeContratEnum,
-                salaireMini, salaireMaxi, localisation, competenceIds, pageable);
-    }
 
     /**
      * Rechercher des offres par compétences
      */
-    public Page<OffreEmploi> rechercherParCompetences(
+    public Page<OffreEmploiDTO> rechercherParCompetences(
             List<Long> competenceIds,
             String tri,
             int page,
@@ -386,6 +339,10 @@ public class OffreEmploiService {
 
         Pageable pageable = PageRequest.of(page, taille, sort);
 
-        return offreEmploiRepository.rechercherParCompetences(competenceIds, pageable);
+        // Get the paginated results
+        Page<OffreEmploi> offres = offreEmploiRepository.rechercherParCompetences(competenceIds, pageable);
+
+        // Convert entities to DTOs
+        return offres.map(OffreEmploiDTO::fromEntity);
     }
 }

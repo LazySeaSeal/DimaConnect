@@ -19,12 +19,13 @@ public interface OffreEmploiRepository extends JpaRepository<OffreEmploi, Long> 
     List<OffreEmploi> findByEntrepriseIdAndStatut(Long entrepriseId, StatutOffre statut);
 
     @Query("SELECT DISTINCT o FROM OffreEmploi o LEFT JOIN o.competences c " +
-            "WHERE (:titre IS NULL OR o.titre LIKE CONCAT('%', :titre, '%')) " +
+            "WHERE (:titre IS NULL OR o.titre LIKE %:titre%) " +
             "AND (:datePublication IS NULL OR o.dateValidation >= :datePublication) " +
             "AND (:niveauExpertise IS NULL OR o.niveauExpertise = :niveauExpertise) " +
             "AND (:typeContrat IS NULL OR o.typeContrat = :typeContrat) " +
             "AND o.statut = 'VALIDEE' AND o.estActive = true " +
-            "AND o.dateExpiration >= CURRENT_DATE")
+            "AND o.dateExpiration >= CURRENT_DATE " +
+            "ORDER BY o.dateValidation DESC")
     Page<OffreEmploi> rechercherOffres(
             @Param("titre") String titre,
             @Param("datePublication") LocalDate datePublication,
@@ -40,16 +41,15 @@ public interface OffreEmploiRepository extends JpaRepository<OffreEmploi, Long> 
             @Param("competenceIds") List<Long> competenceIds,
             Pageable pageable);
 
-    // ✅ Recherche avancée conservée ici
     @Query("SELECT DISTINCT o FROM OffreEmploi o LEFT JOIN o.competences c " +
             "WHERE (:titre IS NULL OR LOWER(o.titre) LIKE LOWER(CONCAT('%', :titre, '%'))) " +
             "AND (:datePublication IS NULL OR o.dateValidation >= :datePublication) " +
             "AND (:niveauExpertise IS NULL OR o.niveauExpertise = :niveauExpertise) " +
             "AND (:typeContrat IS NULL OR o.typeContrat = :typeContrat) " +
-            "AND (:salaireMini IS NULL OR CAST(SUBSTRING(o.salaire, 1, LOCATE('€', o.salaire) - 1) AS double) >= :salaireMini) " +
-            "AND (:salaireMaxi IS NULL OR CAST(SUBSTRING(o.salaire, 1, LOCATE('€', o.salaire) - 1) AS double) <= :salaireMaxi) " +
+            "AND (:salaireMini IS NULL OR CAST(SUBSTRING(o.salaire, 1, LENGTH(o.salaire) - 1) AS double) >= :salaireMini) " +
+            "AND (:salaireMaxi IS NULL OR CAST(SUBSTRING(o.salaire, 1, LENGTH(o.salaire) - 1) AS double) <= :salaireMaxi) " +
             "AND (:localisation IS NULL OR LOWER(o.localisation) LIKE LOWER(CONCAT('%', :localisation, '%'))) " +
-            "AND (COALESCE(:competenceIds, NULL) IS NULL OR c.id IN :competenceIds) " +
+            "AND (COALESCE(:competenceIds) IS NULL OR c.id IN :competenceIds) " +
             "AND o.statut = 'VALIDEE' AND o.estActive = true " +
             "AND o.dateExpiration >= CURRENT_DATE")
     Page<OffreEmploi> rechercheAvancee(

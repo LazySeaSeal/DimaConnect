@@ -8,15 +8,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Repository
 public interface CompetenceOffreRepository extends JpaRepository<CompetenceOffre, Long> {
 
     Set<CompetenceOffre> findByOffreEmploiId(Long offreId);
-
-    @Query("SELECT co FROM CompetenceOffre co WHERE co.offreEmploi.id = :offreId AND co.competence.id = :competenceId")
-    CompetenceOffre findByOffreIdAndCompetenceId(@Param("offreId") Long offreId, @Param("competenceId") Long competenceId);
-
+    Optional<CompetenceOffre> findByCompetenceIdAndOffreEmploiId(Long competenceId, Long offreEmploiId);
     void deleteByOffreEmploiId(Long offreId);
 }

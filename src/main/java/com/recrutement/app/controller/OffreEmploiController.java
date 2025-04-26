@@ -1,5 +1,6 @@
 package com.recrutement.app.controller;
 
+import com.recrutement.app.dto.OffreEmploiDTO;
 import com.recrutement.app.model.OffreEmploi;
 import com.recrutement.app.model.enums.RoleEmploye;
 import com.recrutement.app.service.OffreEmploiService;
@@ -152,8 +153,9 @@ public class OffreEmploiController {
     /**
      * Rechercher des offres avec filtres
      */
+
     @GetMapping("/recherche")
-    public ResponseEntity<Page<OffreEmploi>> rechercherOffres(
+    public ResponseEntity<Page<OffreEmploiDTO>> rechercherOffres(
             @RequestParam(required = false) String titre,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate datePublication,
             @RequestParam(required = false) Integer niveauExpertise,
@@ -165,7 +167,11 @@ public class OffreEmploiController {
         try {
             Page<OffreEmploi> offres = offreEmploiService.rechercherOffres(
                     titre, datePublication, niveauExpertise, typeContrat, tri, page, taille);
-            return ResponseEntity.ok(offres);
+
+            // Convert to DTO
+            Page<OffreEmploiDTO> offresDTOs = offres.map(OffreEmploiDTO::fromEntity);
+
+            return ResponseEntity.ok(offresDTOs);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
@@ -175,56 +181,32 @@ public class OffreEmploiController {
      * Obtenir une offre par son ID
      */
     @GetMapping("/{offreId}")
-    public ResponseEntity<OffreEmploi> getOffreById(@PathVariable Long offreId) {
+    public ResponseEntity<OffreEmploiDTO> getOffreById(@PathVariable Long offreId) {
         try {
-            return offreEmploiService.getOffreById(offreId)
-                    .map(ResponseEntity::ok)
+            OffreEmploi offre = offreEmploiService.getOffreById(offreId)
                     .orElseThrow(() -> new EntityNotFoundException("Offre non trouvée avec l'ID: " + offreId));
+
+            return ResponseEntity.ok(OffreEmploiDTO.fromEntity(offre));
         } catch (EntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
 
 
-    /**
-     * Recherche avancée d'offres d'emploi
-     */
-    @GetMapping("/recherche-avancee")
-    public ResponseEntity<Page<OffreEmploi>> rechercheAvancee(
-            @RequestParam(required = false) String titre,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate datePublication,
-            @RequestParam(required = false) Integer niveauExpertise,
-            @RequestParam(required = false) String typeContrat,
-            @RequestParam(required = false) Double salaireMini,
-            @RequestParam(required = false) Double salaireMaxi,
-            @RequestParam(required = false) String localisation,
-            @RequestParam(required = false) List<Long> competences,
-            @RequestParam(defaultValue = "pertinence") String tri,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int taille) {
 
-        try {
-            Page<OffreEmploi> offres = offreEmploiService.rechercheAvancee(
-                    titre, datePublication, niveauExpertise, typeContrat,
-                    salaireMini, salaireMaxi, localisation, competences, tri, page, taille);
-            return ResponseEntity.ok(offres);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        }
-    }
 
     /**
      * Rechercher des offres par compétences
      */
     @GetMapping("/par-competences")
-    public ResponseEntity<Page<OffreEmploi>> rechercherParCompetences(
+    public ResponseEntity<Page<OffreEmploiDTO>> rechercherParCompetences(
             @RequestParam List<Long> competences,
             @RequestParam(defaultValue = "pertinence") String tri,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int taille) {
 
         try {
-            Page<OffreEmploi> offres = offreEmploiService.rechercherParCompetences(
+            Page<OffreEmploiDTO> offres = offreEmploiService.rechercherParCompetences(
                     competences, tri, page, taille);
             return ResponseEntity.ok(offres);
         } catch (Exception e) {

@@ -3,6 +3,7 @@ package com.recrutement.app.model;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.recrutement.app.model.enums.StatutOffre;
 import com.recrutement.app.model.enums.TypeContrat;
+import jakarta.annotation.PostConstruct;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -82,15 +83,26 @@ public class OffreEmploi {
     @Column(name = "niveau_expertise")
     private Integer niveauExpertise;
 
-    @ManyToMany
+    // Relations
+    // Option 1: Supprimer la relation many-to-many pour éviter les doubles insertions
+    // @ManyToMany(fetch = FetchType.LAZY)
+    // @JoinTable(
+    //         name = "competence_offre",
+    //         joinColumns = @JoinColumn(name = "offre_emploi_id"),
+    //         inverseJoinColumns = @JoinColumn(name = "competence_id")
+    // )
+    // private Set<Competence> competences = new HashSet<>();
+
+    // Option 2: Conserver la relation pour compatibilité mais utiliser
+    // mappedBy pour indiquer que CompetenceOffre est propriétaire
+    // Cette approche est préférable si vous avez besoin de rétrocompatibilité
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-            name = "competence_offre",
+            name = "competence_offre_legacy",  // Table différente pour éviter les conflits
             joinColumns = @JoinColumn(name = "offre_emploi_id"),
             inverseJoinColumns = @JoinColumn(name = "competence_id")
     )
     private Set<Competence> competences = new HashSet<>();
-
-
 
     @OneToMany(mappedBy = "offreEmploi")
     private Set<Candidature> candidatures = new HashSet<>();
@@ -101,4 +113,45 @@ public class OffreEmploi {
     @OneToMany(mappedBy = "offreEmploi", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private Set<CompetenceOffre> competenceOffreDetails = new HashSet<>();
+
+    // Initialize collections after bean construction
+    @PostConstruct
+    public void initialize() {
+        if (this.competences == null) {
+            this.competences = new HashSet<>();
+        }
+        if (this.competenceOffreDetails == null) {
+            this.competenceOffreDetails = new HashSet<>();
+        }
+    }
+
+    // Synchroniser les compétences avec competenceOffreDetails
+    // Méthode utilitaire pour maintenir la cohérence entre les deux collections
+    public void synchroniserCompetences() {
+        this.competences.clear();
+        if (this.competenceOffreDetails != null) {
+            for (CompetenceOffre co : this.competenceOffreDetails) {
+                if (co.getCompetence() != null) {
+                    this.competences.add(co.getCompetence());
+                }
+            }
+        }
+    }
+
+    // Explicit Getters and Setters for competences and competenceOffreDetails
+    public Set<Competence> getCompetences() {
+        return competences;
+    }
+
+    public void setCompetences(Set<Competence> competences) {
+        this.competences = competences;
+    }
+
+    public Set<CompetenceOffre> getCompetenceOffreDetails() {
+        return competenceOffreDetails;
+    }
+
+    public void setCompetenceOffreDetails(Set<CompetenceOffre> competenceOffreDetails) {
+        this.competenceOffreDetails = competenceOffreDetails;
+    }
 }
