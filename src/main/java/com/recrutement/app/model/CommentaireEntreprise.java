@@ -22,8 +22,12 @@ public class CommentaireEntreprise {
     private Entreprise entreprise;
     
     @ManyToOne
-    @JoinColumn(name = "publication_candidat_id", nullable = false)
+    @JoinColumn(name = "publication_candidat_id", nullable = true)
     private PublicationCandidat publicationCandidat;
+    
+    @ManyToOne
+    @JoinColumn(name = "publication_entreprise_id", nullable = true)
+    private PublicationEntreprise publicationEntreprise;
     
     @Column(nullable = false, columnDefinition = "TEXT")
     private String contenu;
@@ -33,4 +37,16 @@ public class CommentaireEntreprise {
     
     @Column(name = "est_lu")
     private Boolean estLu = false;
+
+    // Add validation to ensure one of publication fields is set
+    @PrePersist
+    @PreUpdate
+    private void validate() {
+        if (publicationCandidat == null && publicationEntreprise == null) {
+            throw new IllegalStateException("Either publicationCandidat or publicationEntreprise must be set");
+        }
+        if (publicationCandidat != null && publicationEntreprise != null) {
+            throw new IllegalStateException("Only one of publicationCandidat or publicationEntreprise can be set");
+        }
+    }
 }

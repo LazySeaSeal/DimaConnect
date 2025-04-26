@@ -1,13 +1,16 @@
 package com.recrutement.app.service;
 
-import com.recrutement.app.dto.CommentaireEntrepriseRequest;
+import com.recrutement.app.dto.CommentaireEntreprisePublicationCandidatRequest;
+import com.recrutement.app.dto.CommentaireEntreprisePublicationEntrepriseRequest;
 import com.recrutement.app.exception.ResourceNotFoundException;
 import com.recrutement.app.model.CommentaireEntreprise;
 import com.recrutement.app.model.Entreprise;
 import com.recrutement.app.model.PublicationCandidat;
+import com.recrutement.app.model.PublicationEntreprise;
 import com.recrutement.app.repository.CommentaireEntrepriseRepository;
 import com.recrutement.app.repository.EntrepriseRepository;
 import com.recrutement.app.repository.PublicationCandidatRepository;
+import com.recrutement.app.repository.PublicationEntrepriseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,43 +22,81 @@ public class CommentaireEntrepriseService {
     private final CommentaireEntrepriseRepository commentaireEntrepriseRepository;
     private final EntrepriseRepository entrepriseRepository;
     private final PublicationCandidatRepository publicationCandidatRepository;
+    private final PublicationEntrepriseRepository publicationEntrepriseRepository;
 
     @Autowired
     public CommentaireEntrepriseService(
             CommentaireEntrepriseRepository commentaireEntrepriseRepository,
             EntrepriseRepository entrepriseRepository,
-            PublicationCandidatRepository publicationCandidatRepository) {
+            PublicationCandidatRepository publicationCandidatRepository,
+            PublicationEntrepriseRepository publicationEntrepriseRepository) {
         this.commentaireEntrepriseRepository = commentaireEntrepriseRepository;
         this.entrepriseRepository = entrepriseRepository;
         this.publicationCandidatRepository = publicationCandidatRepository;
+        this.publicationEntrepriseRepository = publicationEntrepriseRepository;
     }
 
-    public CommentaireEntreprise creerCommentaire(CommentaireEntrepriseRequest request) {
+    public CommentaireEntreprise creerCommentairePublicationCandidat(CommentaireEntreprisePublicationCandidatRequest request) {
         // Récupérer l'entreprise
         Entreprise entreprise = entrepriseRepository.findById(request.getEntrepriseId())
                 .orElseThrow(() -> new ResourceNotFoundException("Entreprise non trouvée avec l'ID: " + request.getEntrepriseId()));
 
-        // Récupérer la publication
-        PublicationCandidat publication = publicationCandidatRepository.findById(request.getPublicationCandidatId())
+        // Récupérer la publication du candidat
+        PublicationCandidat publicationCandidat = publicationCandidatRepository.findById(request.getPublicationCandidatId())
                 .orElseThrow(() -> new ResourceNotFoundException("Publication candidat non trouvée avec l'ID: " + request.getPublicationCandidatId()));
 
         // Créer le commentaire
         CommentaireEntreprise commentaire = new CommentaireEntreprise();
         commentaire.setEntreprise(entreprise);
-        commentaire.setPublicationCandidat(publication);
+        commentaire.setPublicationCandidat(publicationCandidat);
         commentaire.setContenu(request.getContenu());
 
         return commentaireEntrepriseRepository.save(commentaire);
     }
 
-    public List<CommentaireEntreprise> getCommentairesByPublicationId(Long publicationId) {
-        PublicationCandidat publication = publicationCandidatRepository.findById(publicationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Publication candidat non trouvée avec l'ID: " + publicationId));
-        return commentaireEntrepriseRepository.findByPublicationCandidat(publication);
+  public CommentaireEntreprise creerCommentairePublicationEntreprise(CommentaireEntreprisePublicationEntrepriseRequest request) {
+    // Récupérer l'entreprise
+    Entreprise entreprise = entrepriseRepository.findById(request.getEntrepriseId())
+            .orElseThrow(() -> new ResourceNotFoundException("Entreprise non trouvée avec l'ID: " + request.getEntrepriseId()));
+
+    // Récupérer la publication de l'entreprise
+    PublicationEntreprise publicationEntreprise = publicationEntrepriseRepository.findById(request.getPublicationEntrepriseId())
+            .orElseThrow(() -> new ResourceNotFoundException("Publication entreprise non trouvée avec l'ID: " + request.getPublicationEntrepriseId()));
+
+    // Créer le commentaire
+    CommentaireEntreprise commentaire = new CommentaireEntreprise();
+    commentaire.setEntreprise(entreprise);
+    commentaire.setPublicationEntreprise(publicationEntreprise);
+    commentaire.setPublicationCandidat(null); // Explicitly set to null
+    commentaire.setContenu(request.getContenu());
+
+    return commentaireEntrepriseRepository.save(commentaire);
+}
+
+    public List<CommentaireEntreprise> getCommentairesByPublicationCandidatId(Long publicationCandidatId) {
+        PublicationCandidat publicationCandidat = publicationCandidatRepository.findById(publicationCandidatId)
+                .orElseThrow(() -> new ResourceNotFoundException("Publication candidat non trouvée avec l'ID: " + publicationCandidatId));
+        return commentaireEntrepriseRepository.findByPublicationCandidat(publicationCandidat);
     }
 
-    public List<CommentaireEntreprise> getCommentairesNonLusByPublicationId(Long publicationId) {
-        return commentaireEntrepriseRepository.findByPublicationCandidatIdAndEstLu(publicationId, false);
+    public List<CommentaireEntreprise> getCommentairesByPublicationEntrepriseId(Long publicationEntrepriseId) {
+        PublicationEntreprise publicationEntreprise = publicationEntrepriseRepository.findById(publicationEntrepriseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Publication entreprise non trouvée avec l'ID: " + publicationEntrepriseId));
+        return commentaireEntrepriseRepository.findByPublicationEntreprise(publicationEntreprise);
+    }
+
+    public List<CommentaireEntreprise> getCommentairesByEntrepriseId(Long entrepriseId) {
+        Entreprise entreprise = entrepriseRepository.findById(entrepriseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Entreprise non trouvée avec l'ID: " + entrepriseId));
+        return commentaireEntrepriseRepository.findByEntreprise(entreprise);
+    }
+
+    public List<CommentaireEntreprise> getCommentairesNonLusByPublicationCandidatId(Long publicationCandidatId) {
+        return commentaireEntrepriseRepository.findByPublicationCandidatIdAndEstLu(publicationCandidatId, false);
+    }
+
+    public List<CommentaireEntreprise> getCommentairesNonLusByPublicationEntrepriseId(Long publicationEntrepriseId) {
+        return commentaireEntrepriseRepository.findByPublicationEntrepriseIdAndEstLu(publicationEntrepriseId, false);
     }
 
     public CommentaireEntreprise marquerCommentaireLu(Long commentaireId) {
