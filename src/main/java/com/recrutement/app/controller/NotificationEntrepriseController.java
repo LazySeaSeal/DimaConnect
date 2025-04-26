@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/notifications/entreprise")
+@RequestMapping("/api/entreprise/notifications/entreprise")
 @Tag(name = "Notifications Entreprise", description = "Gestion des notifications pour les entreprises")
 public class NotificationEntrepriseController {
 

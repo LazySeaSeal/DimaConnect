@@ -24,7 +24,7 @@ import com.recrutement.app.model.ContactCandidat;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/notifications")
+@RequestMapping("/api/candidat/notifications")
 public class NotificationCandidatController {
     @Autowired
     private NotificationCandidatService notificationCandidatService;

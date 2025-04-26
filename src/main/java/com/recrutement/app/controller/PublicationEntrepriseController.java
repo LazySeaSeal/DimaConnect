@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/publications/entreprises")
+@RequestMapping("/api/entreprise/publications/entreprises")
 public class PublicationEntrepriseController {
 
     @Autowired

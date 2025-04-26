@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/commentaires-candidat")
+@RequestMapping("/api/candidat/commentaires-candidat")
 @Tag(name = "Commentaires Candidat", description = "API pour gérer les commentaires des candidats")
 public class CommentaireCandidatController {
 

@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/conversations/entreprise-to-entreprise")
+@RequestMapping("/api/entreprise/conversations/entreprise-to-entreprise")
 @Tag(name = "Conversations entre entreprises", description = "Gestion des conversations entre entreprises")
 public class ConversationEntrepriseController {
     

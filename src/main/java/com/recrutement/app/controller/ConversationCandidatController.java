@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/conversations/candidat-to-candidat")
+@RequestMapping("/api/candidat/conversations/candidat-to-candidat")
 @Tag(name = "Conversations entre candidats", description = "Gestion des conversations entre candidats")
 public class ConversationCandidatController {
     

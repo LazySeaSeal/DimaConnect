@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/candidatures")
+@RequestMapping("/api/candidat/api/candidatures")
 @Tag(name = "Candidatures", description = "Gestion des candidatures")
 public class CandidatureController {
 
