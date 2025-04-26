@@ -41,5 +41,8 @@ public class PublicationCandidat {
     private Integer nombreLikes = 0;
     
     @OneToMany(mappedBy = "publicationCandidat")
-    private Set<CommentaireEntreprise> commentaires = new HashSet<>();
+    private Set<CommentaireEntreprise> commentairesEntreprises = new HashSet<>();
+    
+    @OneToMany(mappedBy = "publicationCandidat")
+    private Set<CommentaireCandidat> commentairesCandidats = new HashSet<>();
 }
