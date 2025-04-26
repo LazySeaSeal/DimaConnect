@@ -179,7 +179,24 @@ public class ConversationController {
             message.getConversation().getId()
         );
         
+        // Publication sur plusieurs destinations pour assurer la compatibilité
+        // 1. Format original
         messagingTemplate.convertAndSend("/topic/conversations." + message.getConversation().getId(), messageDTO);
+        
+        // 2. Format utilisé dans les interfaces HTML
+        messagingTemplate.convertAndSend("/topic/conversations/candidat/" + message.getEntrepriseId(), messageDTO);
+        messagingTemplate.convertAndSend("/topic/conversations/entreprise/" + message.getEntrepriseId(), messageDTO);
+        
+        // 3. Format user/queue pour compatibilité supplémentaire
+        messagingTemplate.convertAndSendToUser(
+            String.valueOf(message.getEntrepriseId()),
+            "/queue/messages",
+            messageDTO
+        );
+        
+        // Log pour débogage
+        System.out.println("Message envoyé par candidat " + candidatId + " à entreprise " + entrepriseId + 
+                          " (conversation " + message.getConversation().getId() + ")");
         
         return ResponseEntity.ok(messageDTO);
     }
@@ -212,7 +229,24 @@ public class ConversationController {
             message.getConversation().getId()
         );
         
+        // Publication sur plusieurs destinations pour assurer la compatibilité
+        // 1. Format original
         messagingTemplate.convertAndSend("/topic/conversations." + message.getConversation().getId(), messageDTO);
+        
+        // 2. Format utilisé dans les interfaces HTML
+        messagingTemplate.convertAndSend("/topic/conversations/candidat/" + message.getCandidatId(), messageDTO);
+        messagingTemplate.convertAndSend("/topic/conversations/entreprise/" + message.getEntrepriseId(), messageDTO);
+        
+        // 3. Format user/queue pour compatibilité supplémentaire
+        messagingTemplate.convertAndSendToUser(
+            String.valueOf(message.getCandidatId()),
+            "/queue/messages",
+            messageDTO
+        );
+        
+        // Log pour débogage
+        System.out.println("Message envoyé par entreprise " + entrepriseId + " à candidat " + candidatId + 
+                          " (conversation " + message.getConversation().getId() + ")");
         
         return ResponseEntity.ok(messageDTO);
     }
@@ -228,8 +262,17 @@ public class ConversationController {
             @Parameter(description = "ID de l'entreprise", example = "1", required = true)
             @PathVariable Long entrepriseId) {
         conversationService.marquerMessagesLusPourEntreprise(conversationId, entrepriseId);
-        messagingTemplate.convertAndSend("/topic/conversations." + conversationId + ".status", 
-            Map.of("action", "marquer-lu", "type", "entreprise", "entrepriseId", entrepriseId));
+        
+        Map<String, Object> statusInfo = Map.of(
+            "action", "marquer-lu", 
+            "type", "entreprise", 
+            "entrepriseId", entrepriseId
+        );
+        
+        // Publication sur plusieurs destinations pour assurer la compatibilité
+        messagingTemplate.convertAndSend("/topic/conversations." + conversationId + ".status", statusInfo);
+        messagingTemplate.convertAndSend("/topic/conversations/status/" + conversationId, statusInfo);
+        
         return ResponseEntity.ok().build();
     }
 
@@ -244,8 +287,17 @@ public class ConversationController {
             @Parameter(description = "ID du candidat", example = "1", required = true)
             @PathVariable Long candidatId) {
         conversationService.marquerMessagesLusPourCandidat(conversationId, candidatId);
-        messagingTemplate.convertAndSend("/topic/conversations." + conversationId + ".status", 
-            Map.of("action", "marquer-lu", "type", "candidat", "candidatId", candidatId));
+        
+        Map<String, Object> statusInfo = Map.of(
+            "action", "marquer-lu", 
+            "type", "candidat", 
+            "candidatId", candidatId
+        );
+        
+        // Publication sur plusieurs destinations pour assurer la compatibilité
+        messagingTemplate.convertAndSend("/topic/conversations." + conversationId + ".status", statusInfo);
+        messagingTemplate.convertAndSend("/topic/conversations/status/" + conversationId, statusInfo);
+        
         return ResponseEntity.ok().build();
     }
 
@@ -258,51 +310,105 @@ public class ConversationController {
             @Parameter(description = "ID de la conversation", example = "1", required = true)
             @PathVariable Long conversationId) {
         conversationService.archiverConversation(conversationId);
-        messagingTemplate.convertAndSend("/topic/conversations." + conversationId + ".status", 
-            Map.of("action", "archiver", "conversationId", conversationId));
+        
+        Map<String, Object> statusInfo = Map.of(
+            "action", "archiver", 
+            "conversationId", conversationId
+        );
+        
+        // Publication sur plusieurs destinations pour assurer la compatibilité
+        messagingTemplate.convertAndSend("/topic/conversations." + conversationId + ".status", statusInfo);
+        messagingTemplate.convertAndSend("/topic/conversations/status/" + conversationId, statusInfo);
+        
         return ResponseEntity.ok().build();
     }
 
-    // WebSocket endpoints (non documentés par Swagger)
+    // WebSocket endpoints
     @MessageMapping("/send.candidat")
     public void handleMessageFromCandidat(@Payload MessageDTO messageDTO) {
-        MessageCandidat message = conversationService.envoyerMessageCandidat(
-            messageDTO.getExpediteurId(),
-            messageDTO.getDestinataireId(),
-            messageDTO.getContenu());
-        
-        MessageDTO response = new MessageDTO(
-            message.getId(),
-            message.getContenu(),
-            message.getDateEnvoi(),
-            message.getEstLu(),
-            "CANDIDAT",
-            message.getCandidatId(),
-            message.getEntrepriseId(),
-            message.getConversation().getId()
-        );
-        
-        messagingTemplate.convertAndSend("/topic/conversations." + message.getConversation().getId(), response);
+        try {
+            MessageCandidat message = conversationService.envoyerMessageCandidat(
+                messageDTO.getExpediteurId(),
+                messageDTO.getDestinataireId(),
+                messageDTO.getContenu());
+            
+            MessageDTO response = new MessageDTO(
+                message.getId(),
+                message.getContenu(),
+                message.getDateEnvoi(),
+                message.getEstLu(),
+                "CANDIDAT",
+                message.getCandidatId(),
+                message.getEntrepriseId(),
+                message.getConversation().getId()
+            );
+            
+            // Publication sur plusieurs destinations pour assurer la compatibilité
+            // 1. Format original
+            messagingTemplate.convertAndSend("/topic/conversations." + message.getConversation().getId(), response);
+            
+            // 2. Format utilisé dans les interfaces HTML
+            messagingTemplate.convertAndSend("/topic/conversations/candidat/" + message.getEntrepriseId(), response);
+            messagingTemplate.convertAndSend("/topic/conversations/entreprise/" + message.getEntrepriseId(), response);
+            
+            // 3. Format user/queue pour compatibilité supplémentaire
+            messagingTemplate.convertAndSendToUser(
+                String.valueOf(message.getEntrepriseId()),
+                "/queue/messages",
+                response
+            );
+            
+            // Log pour débogage
+            System.out.println("Message WebSocket envoyé par candidat " + message.getCandidatId() + 
+                              " à entreprise " + message.getEntrepriseId() + 
+                              " (conversation " + message.getConversation().getId() + ")");
+        } catch (Exception e) {
+            System.err.println("Erreur lors de l'envoi du message par candidat: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @MessageMapping("/send.entreprise")
     public void handleMessageFromEntreprise(@Payload MessageDTO messageDTO) {
-        MessageEntreprise message = conversationService.envoyerMessageEntreprise(
-            messageDTO.getExpediteurId(),
-            messageDTO.getDestinataireId(),
-            messageDTO.getContenu());
-        
-        MessageDTO response = new MessageDTO(
-            message.getId(),
-            message.getContenu(),
-            message.getDateEnvoi(),
-            message.getEstLu(),
-            "ENTREPRISE",
-            message.getEntrepriseId(),
-            message.getCandidatId(),
-            message.getConversation().getId()
-        );
-        
-        messagingTemplate.convertAndSend("/topic/conversations." + message.getConversation().getId(), response);
+        try {
+            MessageEntreprise message = conversationService.envoyerMessageEntreprise(
+                messageDTO.getExpediteurId(),
+                messageDTO.getDestinataireId(),
+                messageDTO.getContenu());
+            
+            MessageDTO response = new MessageDTO(
+                message.getId(),
+                message.getContenu(),
+                message.getDateEnvoi(),
+                message.getEstLu(),
+                "ENTREPRISE",
+                message.getEntrepriseId(),
+                message.getCandidatId(),
+                message.getConversation().getId()
+            );
+            
+            // Publication sur plusieurs destinations pour assurer la compatibilité
+            // 1. Format original
+            messagingTemplate.convertAndSend("/topic/conversations." + message.getConversation().getId(), response);
+            
+            // 2. Format utilisé dans les interfaces HTML
+            messagingTemplate.convertAndSend("/topic/conversations/candidat/" + message.getCandidatId(), response);
+            messagingTemplate.convertAndSend("/topic/conversations/entreprise/" + message.getEntrepriseId(), response);
+            
+            // 3. Format user/queue pour compatibilité supplémentaire
+            messagingTemplate.convertAndSendToUser(
+                String.valueOf(message.getCandidatId()),
+                "/queue/messages",
+                response
+            );
+            
+            // Log pour débogage
+            System.out.println("Message WebSocket envoyé par entreprise " + message.getEntrepriseId() + 
+                              " à candidat " + message.getCandidatId() + 
+                              " (conversation " + message.getConversation().getId() + ")");
+        } catch (Exception e) {
+            System.err.println("Erreur lors de l'envoi du message par entreprise: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }
