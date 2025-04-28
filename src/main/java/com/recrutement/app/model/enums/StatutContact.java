@@ -1,8 +1,7 @@
 package com.recrutement.app.model.enums;
 
 public enum StatutContact {
-    DEMANDE,
+    EN_ATTENTE,
     ACCEPTE,
-    REFUSE,
-    BLOQUE
+    REFUSE
 }
