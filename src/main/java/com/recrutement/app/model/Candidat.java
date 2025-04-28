@@ -46,6 +46,7 @@ public class Candidat {
     private LocalDate dateInscription = LocalDate.now();
 
     @Pattern(regexp = "^[+]?[(]?[0-9]{1,4}[)]?[-\\s.]?[0-9]{1,3}[-\\s.]?[0-9]{3,4}[-\\s.]?[0-9]{3,4}$", message = "Format de téléphone invalide")
+
     private String telephone;
 
     @Size(max = 500, message = "La bio courte ne peut pas dépasser 500 caractères")
